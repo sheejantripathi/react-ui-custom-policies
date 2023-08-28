@@ -58,10 +58,20 @@
         "watch:labextension": "jupyter labextension watch ."
     },
     "dependencies": {
+        "@emotion/react": "^11.11.1",
+        "@emotion/styled": "^11.11.0",
         "@jupyterlab/application": "^4.0.0",
         "@jupyterlab/apputils": "^4.0.0",
         "@jupyterlab/launcher": "^4.0.0",
-        "@jupyterlab/ui-components": "^4.0.0"
+        "@jupyterlab/ui-components": "^4.0.0",
+        "@mui/icons-material": "^5.14.3",
+        "@mui/lab": "^5.0.0-alpha.140",
+        "@mui/material": "^5.14.5",
+        "@types/react-select": "^5.0.1",
+        "axios": "^1.4.0",
+        "bootstrap": "^5.3.1",
+        "react-dropzone": "^14.2.3",
+        "react-select": "^5.7.4"
     },
     "devDependencies": {
         "@jupyterlab/builder": "^4.0.0",

@@ -1,84 +1,76 @@
 import { ReactWidget } from '@jupyterlab/ui-components';
-import React, { useState } from 'react';
-import "../style/policies.css";
+// import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect } from 'react';
 
-interface PolicyConstraints {
-  read: boolean;
-  write: boolean;
-  execute: boolean;
-}
+import "../style/policies.css";
+// import ReusableDropdown from "./components/select-dropdown";
+// import RoleBased from './components/role-based-v2';
+import RoleBasedSelection from './components/role-based-policies';
+
+// import GeolocationRangeInput from "./components/geo-location";
+import Dropzone from './components/asset-select';
+
+
+import axios from 'axios';
+
+// interface PolicyConstraints {
+//   read: boolean;
+//   write: boolean;
+//   execute: boolean;
+// }
 
 const SharingPolicyComponent: React.FC = () => {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [policyConstraints, setPolicyConstraints] = useState<PolicyConstraints>({
-    read: false,
-    write: false,
-    execute: false,
+//   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+useEffect(() => {
+    const fetchData = async () => {
+      try {
+        axios.get(`https://jsonplaceholder.typicode.com/users`)
+      .then(res => {
+        const persons = res.data;
+       console.log('@@@@@@@@@@@',persons);
+      })
+        
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchData();
   });
+//   const [policyConstraints, setPolicyConstraints] = useState<PolicyConstraints>({
+//     read: false,
+//     write: false,
+//     execute: false,
+//   });
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      setSelectedFiles(Array.from(files));
-    }
-  };
 
-  const handlePolicyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = event.target;
-    setPolicyConstraints((prevConstraints) => ({
-      ...prevConstraints,
-      [name]: checked,
-    }));
-  };
+  // const handleRangeSave = (range: any) => {
+  //   // Implement your logic to save the range here
+  //   console.log("Range saved:", range);
+  // };
+ 
+  // const [images, setImages] = useState<{ id: string; src: string }[]>([]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     // Perform any desired actions with selectedFiles and policyConstraints
-    console.log('Selected Files:', selectedFiles);
-    console.log('Policy Constraints:', policyConstraints);
+    // console.log('Selected Files:', selectedFiles);
+    // console.log('Policy Constraints:', policyConstraints);
   };
 
   return (
-    <div>
-      <h2>Select Files and Define Sharing Policies</h2>
+    <div className='scrollable-page'>
+      <h2>Select Research Assets and Define Sharing Policies</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Select Files:</label>
-          <input type="file" multiple onChange={handleFileChange} />
-        </div>
-        <div>
-          <label>
-            <input
-              type="checkbox"
-              name="read"
-              checked={policyConstraints.read}
-              onChange={handlePolicyChange}
-            />
-            Read Access
-          </label>
-        </div>
-        <div>
-          <label>
-            <input
-              type="checkbox"
-              name="write"
-              checked={policyConstraints.write}
-              onChange={handlePolicyChange}
-            />
-            Write Access
-          </label>
-        </div>
-        <div>
-          <label>
-            <input
-              type="checkbox"
-              name="execute"
-              checked={policyConstraints.execute}
-              onChange={handlePolicyChange}
-            />
-            Execute Access
-          </label>
-        </div>
+      <h3>Select Research Assets:</h3>
+        <Dropzone />
+      <h3>Select Roles and Permissions:</h3>
+      <RoleBasedSelection/>
+
+        {/* <div>
+          <label>Geo-location:</label>
+          <GeolocationRangeInput onSave={handleRangeSave}/>
+        </div> */}
         <button type="submit">Define Policies</button>
       </form>
     </div>
