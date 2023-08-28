@@ -1,5 +1,5 @@
 .container {
-    max-width: 400px;
+    max-width: 300px;
     margin: 0 auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -10,6 +10,7 @@
   h2 {
     font-size: 1.5rem;
     margin-bottom: 20px;
+    text-align: center;
   }
   
   .form-group {
@@ -52,3 +53,10 @@
     background-color: #0056b3;
   }
   
+  .scrollable-page {
+    height: 100vh; /* Set the height to 100% of the viewport height */
+    overflow-y: auto;
+    overflow-x: auto; /* Enable vertical scrolling */
+     /* Enable vertical scrolling */
+    /* Add any other styling as needed */
+  }
