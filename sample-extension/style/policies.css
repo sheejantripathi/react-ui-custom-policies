@@ -6,6 +6,24 @@
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
+
+  .container label {
+    display: block;
+    margin: 10px 0 0;
+  }
+
+  .dropdown {
+    background-color: #ffffff; 
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .dropdown select {
+    display: inline-block;
+    font-size: 20px;
+    padding: 20px;
+  }
   
   h2 {
     font-size: 1.5rem;

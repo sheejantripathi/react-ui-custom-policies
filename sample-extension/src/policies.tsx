@@ -1,54 +1,36 @@
 import { ReactWidget } from '@jupyterlab/ui-components';
-// import React, { useEffect, useState, useCallback } from 'react';
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 
 import "../style/policies.css";
-// import ReusableDropdown from "./components/select-dropdown";
-// import RoleBased from './components/role-based-v2';
 import RoleBasedSelection from './components/role-based-policies';
+import LocationRestrictionForm from './components/location/LocationForm';
+import PolicyVisualization from './components/policy-visualization';
 
-// import GeolocationRangeInput from "./components/geo-location";
+
 import Dropzone from './components/asset-select';
 
 
-import axios from 'axios';
-
-// interface PolicyConstraints {
-//   read: boolean;
-//   write: boolean;
-//   execute: boolean;
-// }
+// import axios from 'axios';
 
 const SharingPolicyComponent: React.FC = () => {
-//   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-useEffect(() => {
-    const fetchData = async () => {
-      try {
-        axios.get(`https://jsonplaceholder.typicode.com/users`)
-      .then(res => {
-        const persons = res.data;
-       console.log('@@@@@@@@@@@',persons);
-      })
-        
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
+  //state management for selected files
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
-    fetchData();
-  });
+  //state management for organization, role and permissions
+  const [selectedOrg, setSelectedOrg] = useState<string>('');
+  const [selectedRole, setSelectedRole] = useState<string>('');
+  const [selectedPermission, setSelectedPermission] = useState<string>('');
+
+  //state management for access days and email filter
+  const [selectedAccessTime, setSelectedAccessTime] = useState<number>(0);
+  const [selectedEmailFilter, setSelectedEmailFilter] = useState<string>('');
+
 //   const [policyConstraints, setPolicyConstraints] = useState<PolicyConstraints>({
 //     read: false,
 //     write: false,
 //     execute: false,
 //   });
 
-
-  // const handleRangeSave = (range: any) => {
-  //   // Implement your logic to save the range here
-  //   console.log("Range saved:", range);
-  // };
- 
   // const [images, setImages] = useState<{ id: string; src: string }[]>([]);
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -60,18 +42,36 @@ useEffect(() => {
 
   return (
     <div className='scrollable-page'>
-      <h2>Select Research Assets and Define Sharing Policies</h2>
+      <h2>Custom Policies Definition</h2>
       <form onSubmit={handleSubmit}>
       <h3>Select Research Assets:</h3>
-        <Dropzone />
+        <Dropzone selectedFile={selectedFiles} setSelectedFile={setSelectedFiles}/>
       <h3>Select Roles and Permissions:</h3>
-      <RoleBasedSelection/>
-
-        {/* <div>
-          <label>Geo-location:</label>
-          <GeolocationRangeInput onSave={handleRangeSave}/>
-        </div> */}
-        <button type="submit">Define Policies</button>
+      <RoleBasedSelection
+        selectedOrg={selectedOrg}
+        selectedRole={selectedRole}
+        selectedPermission={selectedPermission}
+        setSelectedOrg={setSelectedOrg}
+        setSelectedRole={setSelectedRole}
+        setSelectedPermission={setSelectedPermission}
+      />
+      <div>
+      <h3>Access Valid days and Email filter:</h3>
+      <label>
+        Access Days:
+        <input type="number" name="Access days" value={selectedAccessTime} onChange={e => setSelectedAccessTime(parseInt(e.target.value))}/>
+      </label>
+      <br/>
+      <label>
+        Email Filter:
+        <input type="string" name="Email Domain" value={selectedEmailFilter} onChange={e => setSelectedEmailFilter(e.target.value)}/>
+      </label>
+      </div>
+      <div>
+      <LocationRestrictionForm/>
+      </div>
+      <PolicyVisualization org={selectedOrg} role={selectedRole} permission={selectedPermission} access_days={selectedAccessTime} email_filter={selectedEmailFilter}/>
+      <button type="submit">Define Policies</button>
       </form>
     </div>
   );
