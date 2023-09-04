@@ -2,7 +2,12 @@ import React from "react";
 import { useDropzone, FileWithPath } from "react-dropzone";
 import "../../style/asset-selector.css";
 
-function Dropzone() {
+interface AssetSelectorProps {
+  selectedFile: File[];
+  setSelectedFile: React.Dispatch<React.SetStateAction<File[]>>;
+}
+
+const Dropzone: React.FC<AssetSelectorProps> = () =>{
   const { getRootProps, getInputProps, isDragActive, acceptedFiles } =
     useDropzone();
 

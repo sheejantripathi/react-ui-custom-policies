@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import "bootstrap/dist/css/bootstrap.css";
 
 interface RoleMap {
@@ -7,6 +7,16 @@ interface RoleMap {
 
 interface PermissionMap {
   [role: string]: string[];
+}
+
+
+interface RoleBasedSelectionProps {
+  selectedOrg: string;
+  selectedRole: string;
+  selectedPermission: string;
+  setSelectedOrg: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedRole: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedPermission: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const organizations: string[] = ['Org1', 'Org2', 'Org3'];
@@ -24,28 +34,17 @@ const permissions: PermissionMap = {
   Role6: ['Permission11', 'Permission12'],
 };
 
-const RoleBasedSelection: React.FC = () => {
-  const [selectedOrg, setSelectedOrg] = useState<string>('');
-  const [selectedRole, setSelectedRole] = useState<string>('');
-  const [selectedPermission, setSelectedPermission] = useState<string>('');
-
-
+const RoleBasedSelection: React.FC<RoleBasedSelectionProps> = ({
+  selectedOrg,
+  selectedRole,
+  selectedPermission,
+  setSelectedOrg,
+  setSelectedRole,
+  setSelectedPermission,
+}) => {
   return (
-    // <div className="container">
-    //   <div className="mt-5 m-auto w-50">
-    //   <Select value={selectedOrg} onChange={e => setSelectedOrg(e || '')} autoFocus={true} />
-    //       <option value="">Select Organization</option>
-    //       {organizations.map(org => (
-    //         <option key={org} value={org}>
-    //           {org}
-    //         </option>
-    //       ))}
-    //   </div>
-    // </div>
     <div>
-      <div>
-      <div className="container">
-      <div className="mt-5 m-auto w-50">
+      <div className="dropdown">
         <select value={selectedOrg} onChange={e => setSelectedOrg(e.target.value)}>
           <option value="">Select Organization</option>
           {organizations.map(org => (
@@ -71,14 +70,6 @@ const RoleBasedSelection: React.FC = () => {
             </option>
           ))}
         </select>
-        </div>
-        </div>
-      </div>
-      <div>
-        <h2>Mapping Visualizer</h2>
-        <p><b>Selected Organization:</b> {selectedOrg}</p>
-        <p><b>Selected Role:</b>{selectedRole}</p>
-        <p><b>Selected Permission:</b> {selectedPermission}</p>
       </div>
     </div>
   );
