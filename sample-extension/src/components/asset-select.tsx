@@ -3,13 +3,15 @@ import { useDropzone, FileWithPath } from "react-dropzone";
 import "../../style/asset-selector.css";
 
 interface AssetSelectorProps {
-  selectedFile: File[];
-  setSelectedFile: React.Dispatch<React.SetStateAction<File[]>>;
+  onFilesSelected: (files: File[]) => void;
 }
 
-const Dropzone: React.FC<AssetSelectorProps> = () =>{
-  const { getRootProps, getInputProps, isDragActive, acceptedFiles } =
-    useDropzone();
+const Dropzone: React.FC<AssetSelectorProps> = ({ onFilesSelected }) => {
+  const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      onFilesSelected(acceptedFiles);
+    },
+  });
 
   const files = acceptedFiles.map((file: FileWithPath) => (
     <li key={file.path}>
@@ -18,21 +20,18 @@ const Dropzone: React.FC<AssetSelectorProps> = () =>{
   ));
 
   return (
-      <div {...getRootProps({ className: "dropzone" })}>
-        <input className="input-zone" {...getInputProps()} />
-        <div className="text-center">
-        <span>{isDragActive ? "📂" : "📁"}</span>
+    <div {...getRootProps({ className: "dropzone" })}>
+      <input {...getInputProps()} />
+      <div className="text-center">
+        <span>📁</span>
         <p>Drag'n'drop images, or click to select files</p>
-          <button type="button" className="btn">
-           Select files
-          </button>
-        </div>
-      
+      </div>
+
       <aside>
         <ul>{files}</ul>
       </aside>
-      </div>
+    </div>
   );
-}
+};
 
 export default Dropzone;
