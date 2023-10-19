@@ -1,22 +1,29 @@
 import { ToolbarButton } from "@jupyterlab/apputils";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
-import { INotebookModel, NotebookPanel } from "@jupyterlab/notebook";
+import { INotebookModel, NotebookPanel, INotebookTracker } from "@jupyterlab/notebook";
 import { IDisposable } from "@lumino/disposable";
 import {LoginWrapper} from '../Login';
 import {SharingPolicyForm} from '../policies';
 import { JupyterFrontEnd } from "@jupyterlab/application";
 
 
+
 export class LoginExtension implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
   private button: ToolbarButton;
 
-  constructor(private app: JupyterFrontEnd) {
+  constructor(private app: JupyterFrontEnd, notebooks: INotebookTracker) {
     // Initialize the button in the constructor
+
+    notebooks.currentChanged.connect((d) => { console.log(d,'changed'); });
     this.button = new ToolbarButton({
-      label: 'Login',
-      onClick: this.handleButtonClick
+      label: 'Share Notebook',
+      onClick: () => {
+        this.handleButtonClick();
+        return undefined;
+      }
     });
   }
+
 
   createNew(panel: NotebookPanel, context: DocumentRegistry.IContext<INotebookModel>): IDisposable {
     // Add the toolbar button to the notebook toolbar
@@ -27,10 +34,13 @@ export class LoginExtension implements DocumentRegistry.IWidgetExtension<Noteboo
     return this.button;
   }
 
+
+
   private handleButtonClick = () => {
     const tokenValue = localStorage.getItem('login-with-metamask:auth');
     if (tokenValue) {
       const tokenObject = JSON.parse(tokenValue);
+      // console.log(value)
       if (tokenObject.accessToken) {
         // const sharingPolicyForm = <SharingPolicyComponent />;
         const formwidget = new SharingPolicyForm();

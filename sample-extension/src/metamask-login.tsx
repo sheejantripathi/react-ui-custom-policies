@@ -65,7 +65,7 @@ export const MetamaskLogin = ({ onLoggedIn }: Props): JSX.Element => {
       .then((response) => response.data)
       .catch((error) => {
         // Handle errors here
-        console.error('Error:', error);
+        console.log('Error:', error.message);
       });
 
 	const handleClick = async () => {

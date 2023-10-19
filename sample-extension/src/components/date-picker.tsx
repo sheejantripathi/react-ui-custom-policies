@@ -35,7 +35,7 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DemoContainer components={['DatePicker', 'DatePicker']}>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div>
           <DatePicker
             label="From"
             defaultValue={today}
