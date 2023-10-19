@@ -4,6 +4,7 @@ import jwtDecode from 'jwt-decode';
 import React, { useState, useEffect } from 'react';
 import Blockies from 'react-blockies';
 import axios from 'axios';
+import SharedNotebooksList from './components/shared-notebook-list';
 
 
 
@@ -46,7 +47,7 @@ export const Profile = ({ auth, onLoggedOut }: Props): JSX.Element => {
         const decodedToken = jwtDecode<JwtDecoded>(accessToken);
 
         const { id } = decodedToken.payload;
-
+		console.log('################## hell yea', accessToken)
         
 
 		axios(`${backendUrl}/api/v1/users/${id}`, {
@@ -79,6 +80,8 @@ export const Profile = ({ auth, onLoggedOut }: Props): JSX.Element => {
 			);
 			return;
 		}
+
+		console.log(accessToken)
         axios.put(`${backendUrl}/api/v1/users/${user._id}`, { username }, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -86,7 +89,6 @@ export const Profile = ({ auth, onLoggedOut }: Props): JSX.Element => {
           },
         })
         .then((response) => {
-            console.log(response.data)
           setState({ ...state, loading: false, user: response.data });
         })
         .catch((error) => {
@@ -110,6 +112,9 @@ export const Profile = ({ auth, onLoggedOut }: Props): JSX.Element => {
 			<p>
 				Logged in as <Blockies seed={publicAddress} />
 			</p>
+			<p style={{justifyContent: 'right'}}>
+				<button onClick={onLoggedOut}>Logout</button>
+			</p>
 			<div>
 				My username is {username ? <pre>{username}</pre> : 'not set.'}{' '}
 				Your publicAddress is <pre>{publicAddress}</pre>
@@ -123,9 +128,7 @@ export const Profile = ({ auth, onLoggedOut }: Props): JSX.Element => {
 			</div>
             {/* <div> */}
             {/* <button onClick={onLoggedOut}></button> */}
-			<p>
-				<button onClick={onLoggedOut}>Logout</button>
-			</p>
+			<SharedNotebooksList sharedNotebooks={[]} />
 		</div>
 	);
 };

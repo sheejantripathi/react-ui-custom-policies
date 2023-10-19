@@ -1,52 +1,27 @@
-// import {
-//     JupyterFrontEnd,
-//     JupyterFrontEndPlugin
-//   } from '@jupyterlab/application';
-//   import { MainAreaWidget } from '@jupyterlab/apputils';
-//   import { ILauncher } from '@jupyterlab/launcher';
-//   import { reactIcon } from '@jupyterlab/ui-components';
-//   import { SharingPolicyForm } from './policies';
+import { Dayjs } from 'dayjs';
+
+export interface Attribute {
+    attribute: string;
+    permissions: string;
+    access_from?: Dayjs | null;
+    access_to?: Dayjs | null;
+  }
   
-//   /**
-//    * The command IDs used by the react-widget plugin.
-//    */
-//   namespace CommandIDs {
-//     export const create = 'create-react-widget';
-//   }
+  export interface ContractDetails {
+    attributes: Attribute[];
+    access_from?: Dayjs | null;
+    access_to?: Dayjs | null;
+    email_filter?: string;
+    location?: string;
+  }
   
-  
-//   const extension: JupyterFrontEndPlugin<void> = {
-//     id: 'react-widget',
-//     description: 'A minimal JupyterLab extension using a React Widget.',
-//     autoStart: true,
-//     optional: [ILauncher],
-//     activate: (app: JupyterFrontEnd, launcher: ILauncher) => {
-//       const { commands } = app;
-  
-//       const command = CommandIDs.create;
-      
-//       commands.addCommand(command, {
-//         caption: 'Define custom policies',
-//         label: 'UI for defining policies',
-//         icon: args => (args['isPalette'] ? undefined : reactIcon),
-//         execute: () => {
-//           const content = new SharingPolicyForm();
-//           const widget = new MainAreaWidget<SharingPolicyForm>({ content });
-//           widget.title.label = 'Custom Policies';
-//           widget.title.icon = reactIcon;
-//           app.shell.add(widget, 'main');
-//         }
-//       });
+  export interface CustomPolicy {
+    policy_version: string;
+    assetId: string;
+    data_sensitivity_level: 'public' | 'internal' | 'confidential' | 'classified';
+    fileHash: string;
+    contract_details: ContractDetails[];
+    asset_owner: string; // Assuming this is the ObjectId as a string
+  }
   
   
-  
-//       if (launcher) {
-//         launcher.add({
-//           command
-//         });
-//       }
-//     }
-//   };
-  
-  
-//   export default extension;

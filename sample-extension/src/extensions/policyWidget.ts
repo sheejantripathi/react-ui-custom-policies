@@ -6,7 +6,6 @@ import {
   import { ILauncher } from '@jupyterlab/launcher';
   import { reactIcon } from '@jupyterlab/ui-components';
   import { SharingPolicyForm } from '../policies';
-  
   /**
    * The command IDs used by the react-widget plugin.
    */
@@ -24,7 +23,7 @@ import {
       const { commands } = app;
   
       const command = CommandIDs.create;
-      
+ 
       commands.addCommand(command, {
         caption: 'Define custom policies',
         label: 'UI for defining policies',

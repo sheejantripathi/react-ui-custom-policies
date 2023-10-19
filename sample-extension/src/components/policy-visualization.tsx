@@ -7,12 +7,11 @@ interface PolicyVisualizationProps {
     permission: string;
     access_from: Dayjs | null;
     access_to: Dayjs | null;
-    email_filter: string;
   }
   
   
 
-const PolicyVisualization: React.FC<PolicyVisualizationProps> = ({org, role, permission,access_from, access_to, email_filter}) => {
+const PolicyVisualization: React.FC<PolicyVisualizationProps> = ({org, role, permission,access_from, access_to}) => {
     let fromValue;
     let toValue;
     if(access_from!==null) {
@@ -31,7 +30,7 @@ const PolicyVisualization: React.FC<PolicyVisualizationProps> = ({org, role, per
         <p><b>Selected Permission:</b> {permission}</p>
         <p><b>Access From:</b> {fromValue}</p>
         <p><b>Access To:</b> {toValue}</p>
-        <p><b>Email-domain:</b> {email_filter}</p>
+
 
 
         {/* <p><b>Selected Location:</b> {selectedLocation}</p> */}
