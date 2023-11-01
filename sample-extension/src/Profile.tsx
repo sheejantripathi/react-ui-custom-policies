@@ -1,134 +1,173 @@
-import '../style/Profile.css';
-
-import jwtDecode from 'jwt-decode';
 import React, { useState, useEffect } from 'react';
 import Blockies from 'react-blockies';
+
+import jwtDecode from 'jwt-decode';
+import {
+  TextField,
+  Button,
+  Grid,
+  MenuItem
+} from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 import axios from 'axios';
-import SharedNotebooksList from './components/shared-notebook-list';
+// import { Auth } from './API/types';
 
-
-
-import { Auth } from './API/types';
-
-
-
-interface Props {
-	auth: Auth;
-	onLoggedOut: () => void;
-}
-
-interface State {
-	loading: boolean;
-	user?: {
-		_id: number;
-		username: string;
-	};
-	username: string;
+interface User {
+  _id: number;
+  username: string;
 }
 
 interface JwtDecoded {
-	payload: {
-		id: string;
-		publicAddress: string;
-	};
+  payload: {
+    id: string;
+    publicAddress: string;
+  };
 }
 
-export const Profile = ({ auth, onLoggedOut }: Props): JSX.Element => {
-	const [state, setState] = useState<State>({
-		loading: false,
-		user: undefined,
-		username: '',
-	});
+interface Props {
+  auth: { accessToken: string };
+  onLoggedOut: () => void;
+}
 
-    const backendUrl = 'http://localhost:3000';
+interface State {
+  loading: boolean;
+  user?: User;
+  username: string;
+}
 
-	useEffect(() => {
-		const { accessToken } = auth;
-        const decodedToken = jwtDecode<JwtDecoded>(accessToken);
+const Profile: React.FC<Props> = ({ auth, onLoggedOut }) => {
+  const [state, setState] = useState<State>({
+    loading: false,
+    user: undefined,
+    username: '',
+  });
 
-        const { id } = decodedToken.payload;
-		console.log('################## hell yea', accessToken)
-        
+  const [countries, setCountries] = useState<string[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState('');
 
-		axios(`${backendUrl}/api/v1/users/${id}`, {
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
-		})
-			.then((response) => response.data)
-			.then((user) => setState({ ...state, user }))
-			.catch(window.alert);
-	}, []);
 
-	const handleChange = ({
-		target: { value },
-	}: React.ChangeEvent<HTMLInputElement>) => {
-		setState({ ...state, username: value });
-	};
+  const [selectedOrganization, setSelectedOrganization] = useState('');
 
-	const handleSubmit = () => {
-		const { accessToken } = auth;
-		const { user, username } = state;
 
-		setState({ ...state, loading: true });
+  const backendUrl = 'http://localhost:3000';
 
-        console.log(user)
+  useEffect(() => {
+    const { accessToken } = auth;
+    const decodedToken = jwtDecode<JwtDecoded>(accessToken);
 
-		if (!user) {
-			window.alert(
-				'The user id has not been fetched yet. Please try again in 5 seconds.'
-			);
-			return;
-		}
+    const { id } = decodedToken.payload;
 
-		console.log(accessToken)
-        axios.put(`${backendUrl}/api/v1/users/${user._id}`, { username }, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        })
-        .then((response) => {
-          setState({ ...state, loading: false, user: response.data });
-        })
-        .catch((error) => {
-          window.alert(error);
-          setState({ ...state, loading: false });
-        });
-	};
+    axios.get<User>(`${backendUrl}/api/v1/users/${id}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then((response) => setState({ ...state, user: response.data }))
+      .catch((error) => window.alert(error));
+  }, []);
 
-	const { accessToken } = auth;
+   // Fetching country list from API
+   useEffect(() => {
+    axios.get('https://restcountries.com/v3.1/all')
+      .then((response) => {
+		console.log(response.data);
+		const countryList = response.data.map((country: any) => country.name.common);
+		setCountries(countryList);
+	  })
+      .catch(error => console.error(error));
+  }, []);
 
-	const {
-		payload: { publicAddress },
-	} = jwtDecode<JwtDecoded>(accessToken);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, username: e.target.value });
+  };
 
-	const { loading, user } = state;
+  const handleSubmit = () => {
+    const { accessToken } = auth;
+    const { user, username } = state;
 
-	const username = user && user.username;
+    setState({ ...state, loading: true });
 
-	return (
-		<div className="Profile">
-			<p>
-				Logged in as <Blockies seed={publicAddress} />
-			</p>
-			<p style={{justifyContent: 'right'}}>
-				<button onClick={onLoggedOut}>Logout</button>
-			</p>
-			<div>
-				My username is {username ? <pre>{username}</pre> : 'not set.'}{' '}
-				Your publicAddress is <pre>{publicAddress}</pre>
-			</div>
-			<div>
-				<label htmlFor="username">Change username: </label>
-				<input name="username" onChange={handleChange} />
-				<button disabled={loading} onClick={handleSubmit}>
-					Submit
-				</button>
-			</div>
-            {/* <div> */}
-            {/* <button onClick={onLoggedOut}></button> */}
-			<SharedNotebooksList sharedNotebooks={[]} />
-		</div>
-	);
+    if (!user) {
+      window.alert('The user id has not been fetched yet. Please try again in 5 seconds.');
+      return;
+    }
+
+    axios.put(`${backendUrl}/api/v1/users/${user._id}`, 
+	{ 
+		username,
+		organization: selectedOrganization,
+		country: selectedCountry
+	},
+	{
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => {
+        setState({ ...state, loading: true, user: response.data, username: response.data.username });
+		setSelectedCountry(response.data.country);
+		setSelectedOrganization(response.data.organization);
+      })
+      .catch((error) => {
+        window.alert(error);
+        setState({ ...state, loading: false });
+      });
+  };
+
+  const { accessToken } = auth;
+  const { payload: { publicAddress } } = jwtDecode<JwtDecoded>(accessToken);
+  const { loading, user } = state;
+  const username = user ? user.username : '';
+
+  return (
+    <div className="Profile">
+      <p>Logged in as <Blockies seed={publicAddress} /></p>
+      <p style={{ justifyContent: 'right' }}>
+        <button onClick={onLoggedOut}>Logout</button>
+      </p>
+      <div>
+        My username is {username ? <pre>{username}</pre> : 'not set.'}{' '}
+        Your publicAddress is <pre>{publicAddress}</pre>
+      </div>
+      <div> 
+		<h2>Registration Details</h2>   
+		<Grid container spacing={3}>
+			<Grid item xs={4}>
+				<TextField name="username" label="username" onChange={handleChange} />
+			</Grid>
+			<Grid item xs={4}>
+			<TextField
+				select
+				label="Organization"
+				fullWidth
+				onChange={(e) => setSelectedOrganization(e.target.value)}
+			>
+				<MenuItem value="UVA">UVA</MenuItem>
+				<MenuItem value="VU">VU</MenuItem>
+				{/* Add more organizations */}
+			</TextField>
+			</Grid>
+			
+			<Grid item xs={4}>
+          <Autocomplete
+            value={selectedCountry}
+            onChange={(e, newValue) => {
+                setSelectedCountry(newValue || '');
+              }}
+            options={countries}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Country"
+                variant="standard"
+              />
+            )}
+          />
+        </Grid>
+      </Grid>
+        <Button disabled={loading} onClick={handleSubmit}>Submit</Button>
+      </div>
+    </div>
+  );
 };
+
+export default Profile;

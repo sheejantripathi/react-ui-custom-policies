@@ -1,18 +1,28 @@
 import { Dayjs } from 'dayjs';
 
-export interface Attribute {
-    attribute: string;
+export interface Policy {
+    group: string;
     permissions: string;
     access_from?: Dayjs | null;
     access_to?: Dayjs | null;
   }
+
+  interface FileOption {
+    id: string;
+    name: string;
+    IPFSHash: string;
+  }
+  
   
   export interface ContractDetails {
-    attributes: Attribute[];
+    policies: Policy[];
     access_from?: Dayjs | null;
     access_to?: Dayjs | null;
     email_filter?: string;
     location?: string;
+    filesToBeAssociated?: FileOption[];
+    organizations?: string[];
+    countries?: string[];
   }
   
   export interface CustomPolicy {

@@ -47,6 +47,7 @@ export const MetamaskLogin = ({ onLoggedIn }: Props): JSX.Element => {
 				publicAddress,
 				'' // MetaMask will ignore the password argument here
 			);
+			console.log(publicAddress, signature);
 
 			return { publicAddress, signature };
 		} catch (err) {

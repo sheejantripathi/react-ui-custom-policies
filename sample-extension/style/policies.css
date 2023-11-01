@@ -72,9 +72,10 @@
   }
   
   .scrollable-page {
-    height: 100vh; /* Set the height to 100% of the viewport height */
+    background-color: #fed9ff;
+    width: 825px;
+    height: 575px;
+    overflow-x: hidden;
     overflow-y: auto;
-    overflow-x: auto; /* Enable vertical scrolling */
-     /* Enable vertical scrolling */
-    /* Add any other styling as needed */
+    padding: 20px;
   }

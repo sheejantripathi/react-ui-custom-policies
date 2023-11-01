@@ -4,7 +4,7 @@ import { ReactWidget } from '@jupyterlab/ui-components';
 import React, { useEffect, useState } from 'react';
 
 import { MetamaskLogin } from './metamask-login';
-import { Profile } from './Profile';
+import Profile from './Profile';
 import { Auth } from './API/types';
 // import logo from './logo.svg';
 
