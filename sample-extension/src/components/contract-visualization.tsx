@@ -4,8 +4,6 @@ import { Paper, Typography } from '@material-ui/core';
 interface ContractDetails {
   groupName: string;
   permissions: string;
-  accessFrom: number;
-  accessTo: number;
   countries: string[];
   organizations: string[];
 }
@@ -28,12 +26,6 @@ const ContractVisualization: React.FC<Props> = ({ selectedContract }) => {
             </Typography>
             <Typography variant="body1">
               <strong>Permission:</strong> {selectedContract.permissions}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Access From:</strong> {selectedContract.accessFrom}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Access To:</strong> {selectedContract.accessTo}
             </Typography>
             <Typography variant="body1">
               <strong>Countries:</strong> {selectedContract.countries.join(', ')}

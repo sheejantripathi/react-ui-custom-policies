@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import ContractVisualization from './contract-visualization';
+import { Dayjs } from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import FileSelect from "./select-wrapper";
+import {Select, MenuItem, FormControl, InputLabel, Box, SelectChangeEvent } from "@mui/material";
+
+
 
 interface Contract {
   _id: string;
@@ -26,10 +34,22 @@ interface ContractDetails {
   contractAddress: string;
 }
 
+interface userDetailsToContractMap {
+  eoaAddress: string;
+  accessFrom: string;
+  accessTo: string;
+}
+
 interface SaveUserToContractMap {
     contractAddress: string;
-    eoaAddresses: string[];
+    usersListToAdd: userDetailsToContractMap[];
     groupName: string;
+}
+
+interface FileOption {
+  id: string;
+  name: string;
+  IPFSHash: string;
 }
 
 const ContractAssignmentComponent: React.FC = () => {
@@ -41,25 +61,48 @@ const ContractAssignmentComponent: React.FC = () => {
 
     const [selectedContract, setSelectedContract] = useState<ContractDetails>();
     // const [myObject, setMyObject] = useState<{ [key: string]: any }>({});
-    const [eoaAddress, setEoaAddress] = useState<string>('');
-    const [eoaAddresses, setEoaAddresses] = useState<string[]>([]); // State to store multiple EOA addresses
+    const [eoaAddress, setEoaAddress] = useState<string>(''); // State to store single EOA address
+    const [usersListToSaveInContract, setUsersListDetailToSaveInContract] = useState<userDetailsToContractMap[]>([]); // State to store multiple EOA addresses
+    const [accessFrom, setAccessFrom] = useState<Dayjs | null>(null);
+    const [accessTo, setAccessTo] = useState<Dayjs | null>(null);
     const [contractInformation, setContractInformation] = useState<Contract[]>([]);
+    const [selectedIPFSFiles, setSelectedIPFSFiles] = useState<FileOption[]>([]);
+    const [userUploadedFiles, setUserUploadedFiles] = useState<FileOption[]>([]);
 
 
   const handleEoaAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEoaAddress(event.target.value);
   };
 
+  const handleIPFSFileSelection = (selectedFiles: FileOption[]) => {
+    setSelectedIPFSFiles(selectedFiles);
+  };
+
+  const handleDateChange = (date: Dayjs | null, type: string) => {
+    if (type === 'access_from') {
+      setAccessFrom(date);
+    } else {
+      setAccessTo(date);
+    }
+  }
+
   //handle the addtion of multiple EOA addresses
   const handleAddUser = () => {
     const trimmedAddress = eoaAddress.trim();
-    if (trimmedAddress !== '' && !eoaAddresses.includes(trimmedAddress)) {
-      setEoaAddresses([...eoaAddresses, trimmedAddress]);
+    const addressAlreadyExists = usersListToSaveInContract.some(obj => obj.eoaAddress === trimmedAddress);
+    if (trimmedAddress !== '' && !addressAlreadyExists) {
+      setUsersListDetailToSaveInContract([...usersListToSaveInContract, {eoaAddress, accessFrom: accessFrom!.toISOString(), accessTo: accessTo!.toISOString()}]);
       setEoaAddress('');
+      setAccessFrom(null);
+      setAccessTo(null);
     }
+    else{
+      window.alert('The EOA address is empty or already exists in the list');
+    }
+    
   };
 
-  const handleContractSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleContractSelect = (event: SelectChangeEvent<string>) => {
 
     const selectedContract = event.target.value;
     axios
@@ -86,12 +129,31 @@ const ContractAssignmentComponent: React.FC = () => {
   };
 
   const handleRemoveUser = (index: number) => {
-    const updatedAddresses = [...eoaAddresses];
-    updatedAddresses.splice(index, 1);
-    setEoaAddresses(updatedAddresses);
+    const updatedUserList = [...usersListToSaveInContract];
+    updatedUserList.splice(index, 1);
+    setUsersListDetailToSaveInContract(updatedUserList);
   };
 
- 
+  const loadUserUploadedFiles = async () => { 
+    const { accessToken } = auth;
+		axios(`${backendUrl}/api/v1/users/uploadedFiles`, {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		})
+			.then((response) => {
+				const uploadedFiles = response.data
+        let selectOptions = uploadedFiles.rows.map((file: any) => {
+          return {id: file.id, name:file.metadata.name, IPFSHash: file.ipfs_pin_hash}
+        })
+        setUserUploadedFiles(selectOptions)
+			})
+			.catch(window.alert);
+  };
+
+  useEffect(() => {
+		loadUserUploadedFiles()
+	}, []);
 
   useEffect(() => {
    
@@ -117,9 +179,10 @@ const ContractAssignmentComponent: React.FC = () => {
     event.preventDefault();
   
     const formData = new FormData();
+
     const user_contract_details: SaveUserToContractMap = {
       contractAddress: selectedContract!.contractAddress,
-      eoaAddresses: eoaAddresses,
+      usersListToAdd: usersListToSaveInContract,
       groupName: selectedContract!.groupName
     }
 
@@ -144,18 +207,47 @@ formData.append('user_contract_details', JSON.stringify(user_contract_details));
   
 
   return (
-    <div>
-    <label htmlFor="eoaAddress">EOA Address:</label>
-      <input type="text" id="eoaAddress" value={eoaAddress} onChange={handleEoaAddressChange} />
-      <button onClick={handleAddUser}>Add User</button>
+    <div style={{ marginBottom: '20px', padding: '20px', border: '1px solid #ccc', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+          <input
+                type="text"
+                id="eoaAddress"
+                name="eoaAddress"
+                placeholder="EOA Address of the user"
+                value={eoaAddress}
+                onChange={handleEoaAddressChange}
+                style={{ flex: 1, padding: '10px',  marginRight: '10px', border: '1px solid #ccc', borderRadius: '5px' }}
+              />
+              <div style={{ flex: 1, marginRight: '10px' }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Access From"
+                    value={accessFrom}
+                    onChange={(date) => handleDateChange(date, 'access_from')}
+                  />
+                </LocalizationProvider>
+              </div>
+              <div style={{ flex: 1,  marginRight: '10px' }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Access To"
+                    value={accessTo}
+                    onChange={(date) => handleDateChange( date, 'access_to')}
+                  />
+                </LocalizationProvider>
+              </div>
 
-      {(eoaAddresses.length > 0) && (
+        <div style={{ flex: 1, marginRight: '10px' }}>
+        <button onClick={handleAddUser}>Add User</button>
+        </div>
+      </div>
+      {(usersListToSaveInContract.length > 0) && (
         <div>
           <h3>Selected Users:</h3>
           <ul>
-            {eoaAddresses.map((address, index) => (
+            {usersListToSaveInContract.map((user, index) => (
               <li key={index}>
-                {address} <button onClick={() => handleRemoveUser(index)}>Remove</button>
+                {user.eoaAddress} AccessFrom: {user.accessFrom} - AccessTo: {user.accessTo} <button onClick={() => handleRemoveUser(index)}>Remove</button>
               </li>
             ))}
           </ul>
@@ -163,22 +255,51 @@ formData.append('user_contract_details', JSON.stringify(user_contract_details));
       )}
       
       <div>
-        <h3>Select a Contract:</h3>
-        <select onChange={ handleContractSelect}>
-          <option value="">Select a contract</option>
-          {contractInformation.map((contract) => (
-            <option key={contract._id} value={contract.childContractAddress}>
-              Group:{contract.group} - Address:{contract.childContractAddress}
-            </option>
-          ))}
-        </select>
+      <h2>Select Contract and Files To Share</h2>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>       
+              <div style={{ flex: 1, marginRight: '10px' }}>
+              <Box>
+                <FormControl fullWidth>
+                  <InputLabel>Select a Contract</InputLabel>
+                  <Select
+                      onChange={handleContractSelect} // Update the event type
+                      label="Select a Contract"
+                      placeholder="Select a Contract"
+                    >
+                    {contractInformation.map((contract) => (
+                      <MenuItem key={contract.childContractAddress} value={contract.childContractAddress}>
+                        {contract.group}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+              </div>
+              <div style={{ flex: 1 }}>
+                <FileSelect
+                  files={userUploadedFiles}
+                  onSelect={handleIPFSFileSelection}
+                />
+              </div>
+            </div>
+            {(selectedIPFSFiles.length > 0 ) && (
+              <div>
+                <h2>Selected IPFS files:</h2>
+                <ul>
+                  {selectedIPFSFiles.map((file, index) => (
+                    <li key={index}>
+                      {file.name} - {file.IPFSHash}
+                    </li>
+                  ))}
+                </ul>
+            </div>
+              )}
         <button onClick={handleSaveButton}>Save</button>
           {selectedContract &&(
             <ContractVisualization selectedContract={selectedContract} />  
           )}
-       
-        
-      </div>
+    </div>
+
     </div>
   );
 };

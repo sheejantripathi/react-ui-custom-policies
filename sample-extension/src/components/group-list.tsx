@@ -7,7 +7,7 @@ import {Button } from '@material-ui/core';
 import FileSelect from "./select-wrapper";
 import "../../style/scrollable.css";
 
-// Define the interfaces for group and file data
+// Define the interfaces for group and file dat
 interface Group {
   name: string;
   contractAddress: string;
