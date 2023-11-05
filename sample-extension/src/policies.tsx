@@ -1,7 +1,5 @@
 import { ReactWidget } from '@jupyterlab/ui-components';
-import { Dayjs } from 'dayjs';
 import React, { useState, useEffect } from 'react';
-import FileSelect from "./components/select-wrapper";
 import {
   TextField,
   Button,
@@ -10,16 +8,13 @@ import {
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import "../style/policies.css";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { ContractDetails } from './sampleExtension';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import EncryptFileAndUpload from './components/lit';
   
 
-import Dropzone from './components/asset-select';
+// import Dropzone from './components/asset-select';
 
 
 const LS_KEY = 'login-with-metamask:auth';
@@ -30,17 +25,9 @@ const auth = ls && JSON.parse(ls);
 // Define the URL of your local backend server
 const backendUrl = 'http://localhost:3000';
 
-interface FileOption {
-  id: string;
-  name: string;
-  IPFSHash: string;
-}
-
 interface Input {
   group: string;
   permissions: string;
-  access_from: Dayjs | null;
-  access_to: Dayjs | null;
   organizations: string[];
   countries: string[];
 }
@@ -49,41 +36,43 @@ interface Input {
 const SharingPolicyComponent: React.FC = () =>{
   //state management for selected file
 
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  // const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
 
   const notify = (notify_value: string) => toast(notify_value);
 
-  const handleFilesSelected = (files: File[]) => {
-    setSelectedFiles(files);
-  };
+  // const handleFilesSelected = (files: File[]) => {
+  //   setSelectedFiles(files);
+  // };
  
-  const [selectedIPFSFiles, setSelectedIPFSFiles] = useState<FileOption[]>([]);
-  const [userUploadedFiles, setUserUploadedFiles] = useState<FileOption[]>([]);
+  // const [selectedIPFSFiles, setSelectedIPFSFiles] = useState<FileOption[]>([]);
+  // const [userUploadedFiles, setUserUploadedFiles] = useState<FileOption[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
 
-  const loadUserUploadedFiles = async () => { 
-    const { accessToken } = auth;
-		axios(`${backendUrl}/api/v1/users/uploadedFiles`, {
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
-		})
-			.then((response) => {
-				const uploadedFiles = response.data
-        let selectOptions = uploadedFiles.rows.map((file: any) => {
-          return {id: file.id, name:file.metadata.name, IPFSHash: file.ipfs_pin_hash}
-        })
-        setUserUploadedFiles(selectOptions)
-			})
-			.catch(window.alert);
-  };
-  
-  const [inputs, setInputs] = useState<Input[]>([{ group: '', permissions: '', access_from:null, access_to: null, organizations: [], countries: []}]);
+  // const loadUserUploadedFiles = async () => { 
+  //   const { accessToken } = auth;
+	// 	axios(`${backendUrl}/api/v1/users/uploadedFiles`, {
+	// 		headers: {
+	// 			Authorization: `Bearer ${accessToken}`,
+	// 		},
+	// 	})
+	// 		.then((response) => {
+	// 			const uploadedFiles = response.data
+  //       let selectOptions = uploadedFiles.rows.map((file: any) => {
+  //         return {id: file.id, name:file.metadata.name, IPFSHash: file.ipfs_pin_hash}
+  //       })
+  //       setUserUploadedFiles(selectOptions)
+	// 		})
+	// 		.catch(window.alert);
+  // };
 
-  useEffect(() => {
-		loadUserUploadedFiles()
-	}, []);
+  // useEffect(() => {
+	// 	loadUserUploadedFiles()
+	// }, []);
+  
+  const [inputs, setInputs] = useState<Input[]>([{ group: '', permissions: '',  organizations: [], countries: []}]);
+
+  
 
   useEffect(() => {
     axios.get('https://restcountries.com/v3.1/all')
@@ -95,41 +84,15 @@ const SharingPolicyComponent: React.FC = () =>{
     .catch(error => console.error(error));
 	}, []);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const options = {
-  //       method: 'GET',
-  //       url: 'https://ajayakv-rest-countries-v1.p.rapidapi.com/rest/v1/all',
-  //       headers: {
-  //         'X-RapidAPI-Key': 'e1f8b84723msh2a474ff53b5ba1bp17122fjsn2a4c2f209f30',
-  //         'X-RapidAPI-Host': 'ajayakv-rest-countries-v1.p.rapidapi.com'
-  //       }
-  //     };
-
-  //     try {
-  //       const response = await axios.request(options);
-  //       console.log(response.data);
-  //       //     const countryList = response.data.map((country: any) => country.name.common);
-  //   //     setCountries(countryList);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
   const handleInputChange = (
     index: number,
-    value: string | Dayjs | null | string[],
+    value: string | string[],
     field: string
   ) => {
     const values = [...inputs];
     if (value !== null) {
       if (field === 'group' || field === 'permissions') {
         values[index][field] = value as string;
-      } else if (field === 'access_from' || field === 'access_to') {
-        values[index][field] = value as Dayjs;
       }
       else if (field === 'organizations' || field === 'countries') {
         values[index][field] = value as string[];
@@ -138,12 +101,9 @@ const SharingPolicyComponent: React.FC = () =>{
     }
   };
   
-  const handleIPFSFileSelection = (selectedFiles: FileOption[]) => {
-    setSelectedIPFSFiles(selectedFiles);
-  };
 
   const handleAddInput = () => {
-    setInputs([...inputs, { group: '', permissions: '', access_from:null, access_to: null, organizations: [], countries: []}]);
+    setInputs([...inputs, { group: '', permissions: '', organizations: [], countries: []}]);
   };
 
   const handleRemoveInput = (index: number) => {
@@ -160,14 +120,8 @@ const SharingPolicyComponent: React.FC = () =>{
     event.preventDefault();
 
     const formData = new FormData();
-    const contract_details: ContractDetails = {
-      // role: selectedRole,
-      policies: inputs,
-      filesToBeAssociated: selectedIPFSFiles,
-      location: JSON.stringify([{ latitude: '0.0', longitude: '0.0' }]),
-    }
 
-    formData.append('contract_details', JSON.stringify(contract_details));
+    formData.append('policies', JSON.stringify(inputs));
 
     // Sending a POST request to the backend server using Axios
       try {
@@ -180,52 +134,49 @@ const SharingPolicyComponent: React.FC = () =>{
             "Content-Type": "multipart/form-data" 
           },
         });
-        notify('Policy Saved Successfully and Sma');
+        notify('Policy Saved Successfully and Smart Contract Deployed');
         return response.data;
       } catch(error) {
         console.log(error)
       }  
   };
   
-  const handleIPFSUpload = async (event: React.FormEvent) => {
-    event.preventDefault();
+//   const handleIPFSUpload = async (event: React.FormEvent) => {
+//     event.preventDefault();
   
-    const formData = new FormData();
+//     const formData = new FormData();
     
-    // Append the file(s)
-    selectedFiles.forEach((file, index) => {
-      formData.append(`file${index}`, file);
-    });
+//     // Append the file(s)
+//     selectedFiles.forEach((file, index) => {
+//       formData.append(`file${index}`, file);
+//     });
 
 
- try {
-        const response = await axios({
-          method: "post",
-          url: `${backendUrl}/api/v1/policies/asset-upload`,
-          data: formData,
-          headers: { 
-            Authorization: `Bearer ${auth.accessToken}`,
-            "Content-Type": "multipart/form-data" 
-          },
-        })
-        if(response.data) {
-          notify('Files uploaded to IPFS Successfully');
-          loadUserUploadedFiles()
-          return response.data;
-        }        
-      } catch(error) {
-        console.log(error)
-      } 
-  };
+//  try {
+//         const response = await axios({
+//           method: "post",
+//           url: `${backendUrl}/api/v1/users/asset-upload`,
+//           data: formData,
+//           headers: { 
+//             Authorization: `Bearer ${auth.accessToken}`,
+//             "Content-Type": "multipart/form-data" 
+//           },
+//         })
+//         if(response.data) {
+//           notify('Files uploaded to IPFS Successfully');
+//           return response.data;
+//         }        
+//       } catch(error) {
+//         console.log(error)
+//       } 
+//   };
 
   return (
     <div className='scrollable-page'>
       <h2>Custom Policies Definition</h2>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <h3>Select Research Assets:</h3>
-        <Dropzone onFilesSelected={handleFilesSelected} />
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button variant="contained" onClick={handleIPFSUpload}>Upload Files to IPFS</Button>
+        <div>
+          <EncryptFileAndUpload />
         </div>
         <div>
           <h3>Groups and Permissions:</h3>
@@ -294,50 +245,10 @@ const SharingPolicyComponent: React.FC = () =>{
             />
         </Grid>
             </Grid>
-            </div>
-           
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-              <div style={{ flex: 1, marginRight: '10px' }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Access From"
-                    value={input.access_from}
-                    onChange={(date) => handleInputChange(index, date ? date.toISOString() : '', 'access_from')}
-                  />
-                </LocalizationProvider>
-              </div>
-              <div style={{ flex: 1 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Access To"
-                    value={input.access_to}
-                    onChange={(date) => handleInputChange(index, date ? date.toISOString() : '', 'access_to')}
-                  />
-                </LocalizationProvider>
-              </div>
-              <div style={{ flex: 1 }}>
-                <FileSelect
-                  files={userUploadedFiles}
-                  onSelect={handleIPFSFileSelection}
-                />
-              </div>
-            </div>
+            </div>    
             <button type="button" onClick={() => handleRemoveInput(index)} style={{ backgroundColor: '#ff0000', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', alignSelf: 'flex-end' }}>
               Remove
-            </button>
-            {(selectedIPFSFiles.length > 0 ) && (
-              <div>
-                <h2>Selected IPFS files:</h2>
-                <ul>
-                  {selectedIPFSFiles.map((file, index) => (
-                    <li key={index}>
-                      {file.name} - {file.IPFSHash}
-                    </li>
-                  ))}
-                </ul>
-            </div>
-              )}
-            
+            </button> 
           </div>
         ))}
         <div style={{ alignItems: 'center' }}>

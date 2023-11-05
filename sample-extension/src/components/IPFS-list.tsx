@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactPaginate from 'react-paginate';
+// import CryptoJS from 'crypto-js';
 import axios from 'axios';
 import fileDownload from 'js-file-download';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
@@ -37,7 +38,16 @@ const FileList: React.FC<FileListProps> = ({ data }) => {
         responseType: 'blob',
       })
       .then((res) => {
-        fileDownload(res.data, name);
+        const encryptedBlob = res.data;
+        const reader = new FileReader();
+  
+        reader.onload = () => {
+          // const decryptedData = CryptoJS.AES.decrypt(reader.result, key, { iv: iv }).toString(CryptoJS.enc.Utf8);
+          // Now 'decryptedData' contains the decrypted content
+          fileDownload(encryptedBlob, name);
+        };
+  
+        reader.readAsText(encryptedBlob);
       });
   };
 

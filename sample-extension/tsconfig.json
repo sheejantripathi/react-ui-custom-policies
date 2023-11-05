@@ -9,7 +9,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noUnusedLocals": true,
     "preserveWatchOutput": true,
     "resolveJsonModule": true,
@@ -19,5 +19,5 @@
     "strictNullChecks": true,
     "target": "ES2018"
   },
-  "include": ["src/*", "src/components", "src/**/*.ts", "src/buttons/shareButton.tsx", "src/buttons/loginButton.tsx"]
+  "include": ["src/*", "src/components", "src/**/*.ts", "src/buttons/shareButton.tsx", "src/buttons/loginButton.tsx", "src/extensions/ipfsUpload.tsx"]
 }
