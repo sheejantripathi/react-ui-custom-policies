@@ -16,19 +16,11 @@ interface Contract {
   name: string;
   group: string;
   childContractAddress: string;
-  policyId: {
-  assetId: {
-      fileName: string;
-      fileType: string;
-    }
-  }
 };
 
 interface ContractDetails {
   groupName: string;
   permissions: string;
-  accessFrom: number;
-  accessTo: number;
   countries: string[];
   organizations: string[];
   contractAddress: string;
@@ -44,6 +36,7 @@ interface SaveUserToContractMap {
     contractAddress: string;
     usersListToAdd: userDetailsToContractMap[];
     groupName: string;
+    filesToAdd?: FileOption[];
 }
 
 interface FileOption {
@@ -105,6 +98,7 @@ const ContractAssignmentComponent: React.FC = () => {
   const handleContractSelect = (event: SelectChangeEvent<string>) => {
 
     const selectedContract = event.target.value;
+    console.log(selectedContract, 'selected contract')
     axios
     .get(`${backendUrl}/api/v1/policies/get-contract-details?childContractAddress=${selectedContract}`, {
       headers: {
@@ -183,11 +177,14 @@ const ContractAssignmentComponent: React.FC = () => {
     const user_contract_details: SaveUserToContractMap = {
       contractAddress: selectedContract!.contractAddress,
       usersListToAdd: usersListToSaveInContract,
-      groupName: selectedContract!.groupName
+      groupName: selectedContract!.groupName,
+      filesToAdd: selectedIPFSFiles
     }
 
+    console.log(user_contract_details, 'user_contract_details')
+
 formData.append('user_contract_details', JSON.stringify(user_contract_details));
-    // Sending a POST request to the backend server using Axios
+    // Sending a POST request to the backend server using Axioss
       try {
         const response = await axios({
           method: "post",
@@ -267,7 +264,7 @@ formData.append('user_contract_details', JSON.stringify(user_contract_details));
                       placeholder="Select a Contract"
                     >
                     {contractInformation.map((contract) => (
-                      <MenuItem key={contract.childContractAddress} value={contract.childContractAddress}>
+                      <MenuItem value={`${contract.childContractAddress}`}>
                         {contract.group}
                       </MenuItem>
                     ))}
