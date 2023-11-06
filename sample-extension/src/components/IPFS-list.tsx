@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import ReactPaginate from 'react-paginate';
 // import CryptoJS from 'crypto-js';
-import axios from 'axios';
-import fileDownload from 'js-file-download';
+// import axios from 'axios';
+// import fileDownload from 'js-file-download';
+import decryptFile from './lit-decrypt';
+
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
 
 interface FileItem {
@@ -32,24 +34,24 @@ const FileList: React.FC<FileListProps> = ({ data }) => {
     window.open(ipfsLink, '_blank');
   };
 
-  const handleDownload = (url: string, name: string) => {
-    axios
-      .get(url, {
-        responseType: 'blob',
-      })
-      .then((res) => {
-        const encryptedBlob = res.data;
-        const reader = new FileReader();
+  // const handleDownload = (url: string, name: string) => {
+  //   axios
+  //     .get(url, {
+  //       responseType: 'blob',
+  //     })
+  //     .then((res) => {
+  //       const encryptedBlob = res.data;
+  //       const reader = new FileReader();
   
-        reader.onload = () => {
-          // const decryptedData = CryptoJS.AES.decrypt(reader.result, key, { iv: iv }).toString(CryptoJS.enc.Utf8);
-          // Now 'decryptedData' contains the decrypted content
-          fileDownload(encryptedBlob, name);
-        };
+  //       reader.onload = () => {
+  //         // const decryptedData = CryptoJS.AES.decrypt(reader.result, key, { iv: iv }).toString(CryptoJS.enc.Utf8);
+  //         // Now 'decryptedData' contains the decrypted content
+  //         fileDownload(encryptedBlob, name);
+  //       };
   
-        reader.readAsText(encryptedBlob);
-      });
-  };
+  //       reader.readAsText(encryptedBlob);
+  //     });
+  // };
 
   return (
     <div>
@@ -68,15 +70,13 @@ const FileList: React.FC<FileListProps> = ({ data }) => {
                 <TableCell>{item.IPFSHash}</TableCell>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>
-                  <Button variant="contained" color="primary" onClick={() => handleFileView(item.IPFSHash)}>
+                  <Button variant="contained" color="primary" onClick={() => decryptFile(item.IPFSHash, item.name)}>
                     View
                   </Button>
                   <Button
                     variant="contained"
                     color="secondary"
-                    onClick={() => {
-                      handleDownload(`https://gateway.ipfs.io/ipfs/${item.IPFSHash}`, item.name);
-                    }}
+                    onClick={() => decryptFile(item.IPFSHash, item.name)}
                   >
                     Download
                   </Button>

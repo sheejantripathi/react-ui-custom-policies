@@ -201,8 +201,7 @@ const SharingPolicyComponent: React.FC = () =>{
               >
                 <option value="">Select a permission</option>
                 <option value="read_access">Read Access</option>
-                <option value="edit_access">Edit Access</option>
-                <option value="unlimited_access">Unlimited Access</option>
+                <option value="unlimited_access">Full Access</option>
               </select>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
