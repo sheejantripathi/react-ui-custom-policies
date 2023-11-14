@@ -23,11 +23,8 @@ const decryptFile = async (fileToDecrypt, fileName) => {
         authSig: authSig,
       })
 
-      console.log(result, "result")
-      
       // After we have our dcypted file we can download it
       if(result) {
-        alert("I am here")
         const blob = new Blob([result.decryptedFile], { type: 'application/octet-stream' });
         const downloadLink = document.createElement('a');
         downloadLink.href = URL.createObjectURL(blob);

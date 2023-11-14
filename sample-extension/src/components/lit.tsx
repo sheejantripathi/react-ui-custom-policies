@@ -2,7 +2,8 @@ import * as LitJsSdk from "@lit-protocol/lit-node-client";
 import Dropzone from './asset-select';
 import {Button } from '@material-ui/core';
 import React, { useState } from 'react';
-// import './App.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 
 const LS_KEY = 'login-with-metamask:auth';
@@ -15,7 +16,7 @@ const backendUrl = 'http://localhost:3000';
 
 function EncryptFileAndUpload() {
     // const [file, setFile] = useState("");
-    const [cid, setCid] = useState("");
+    // const [cid, setCid] = useState("");
     const [uploading, setUploading] = useState(false);
     // add a new state for the cid to decrypt
     // const [decryptionCid, setDecryptionCid] = useState("");
@@ -85,23 +86,21 @@ function EncryptFileAndUpload() {
               },
             })
             if(response.data) {
-            //   notify('Files uploaded to IPFS Successfully');
-            console.log(response.data);
-            const ipfsHash = '';
-            setCid(ipfsHash);
             setUploading(false);
-            console.log("CID: ", cid, uploading)
-              return response.data;
+            toast.success('Files uploaded to IPFS successfully');
+            console.log(uploading)
+            return response.data;
             }        
           }  catch (e) {
             console.log(e);
             setUploading(false);
-            alert("Trouble uploading file");
+            toast.error('Error uploading files to IPFS');
           }
       };
 
   return (
     <div>
+      <ToastContainer autoClose={3000}/>
       <h3>Upload Assets:</h3>
         <Dropzone onFilesSelected={handleFilesSelected} />
         <div style={{ display: 'flex', justifyContent: 'center' }}>

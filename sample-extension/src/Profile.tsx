@@ -10,7 +10,9 @@ import {
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import axios from 'axios';
-// import { Auth } from './API/types';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 interface User {
   _id: number;
@@ -104,12 +106,14 @@ const Profile: React.FC<Props> = ({ auth, onLoggedOut }) => {
     })
       .then((response) => {
         setState({ ...state, loading: true, user: response.data, username: response.data.username });
-		setSelectedCountry(response.data.country);
-		setSelectedOrganization(response.data.organization);
+        setSelectedCountry(response.data.country);
+        setSelectedOrganization(response.data.organization);
+        toast.success('Registration details updated successfully');
       })
       .catch((error) => {
         window.alert(error);
         setState({ ...state, loading: false });
+        toast.error('Error updating registration details');
       });
   };
 
@@ -120,6 +124,7 @@ const Profile: React.FC<Props> = ({ auth, onLoggedOut }) => {
 
   return (
     <div className="Profile">
+      <ToastContainer autoClose={3000}/>
       <p>Logged in as <Blockies seed={publicAddress} /></p>
       <p style={{ justifyContent: 'right' }}>
         <button onClick={onLoggedOut}>Logout</button>
