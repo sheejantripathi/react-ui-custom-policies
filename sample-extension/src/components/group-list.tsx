@@ -6,6 +6,8 @@ import Dropzone from './asset-select';
 import {Button } from '@material-ui/core';
 import FileSelect from "./select-wrapper";
 import "../../style/scrollable.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Define the interfaces for group and file dat
 interface Group {
@@ -20,11 +22,12 @@ interface FileType {
 }
 
 interface FileOption {
-  id: string;
   name: string;
   IPFSHash: string;
 }
 const GroupListComponent: React.FC = () => {
+  // const notify = (notify_value: string) => toast(notify_value);
+
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [sharedFiles, setSharedFiles] = useState<FileType[]>([]);
@@ -55,7 +58,8 @@ const GroupListComponent: React.FC = () => {
         },
       })
       .then((response) => {
-        setGroups(response.data.groups);
+        console.log(response.data)
+        setGroups(response.data);
       })
       .catch((error) => {
         console.error('Error fetching contract information:', error);
@@ -77,10 +81,15 @@ const GroupListComponent: React.FC = () => {
         },
       })
       .then((response) => {
-        setSharedFiles(response.data);
+        setSharedFiles(response.data.formattedData);
       })
       .catch((error) => {
-        console.error('Error fetching shared files:', error);
+        console.error('Error:', error);
+        if (error.response) {
+          toast.error(error.response.data.message)
+          console.log('Response status:', error.response.status);
+          console.log('Error message:', error.response.data.message);
+        }
       });
   };
 
@@ -98,7 +107,7 @@ const GroupListComponent: React.FC = () => {
  try {
         const response = await axios({
           method: "post",
-          url: `${backendUrl}/api/v1/users/asset-upload`,
+          url: `${backendUrl}/api/v1/users/asset-upload-test`,
           data: formData,
           headers: { 
             Authorization: `Bearer ${auth.accessToken}`,
@@ -111,6 +120,9 @@ const GroupListComponent: React.FC = () => {
         }        
       } catch(error) {
         console.log(error)
+        // if(error.response) {
+        //   toast.error(error.response.data.message)
+        // }
       } 
   };
 
@@ -124,7 +136,7 @@ const GroupListComponent: React.FC = () => {
 			.then((response) => {
 				const uploadedFiles = response.data
         let selectOptions = uploadedFiles.rows.map((file: any) => {
-          return {id: file.id, name:file.metadata.name, IPFSHash: file.ipfs_pin_hash}
+          return {name:file.metadata.name, IPFSHash: file.ipfs_pin_hash}
         })
         setUserUploadedFiles(selectOptions)
 			})
@@ -153,6 +165,7 @@ const GroupListComponent: React.FC = () => {
 
   return (
     <div className='scrollable-page'>
+      <ToastContainer autoClose={3000}/>
       <h3>Select Research Assets:</h3>
         <Dropzone onFilesSelected={handleFilesSelected} />
         <div style={{ display: 'flex', justifyContent: 'center' }}>

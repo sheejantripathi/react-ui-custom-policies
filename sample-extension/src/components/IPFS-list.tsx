@@ -29,10 +29,10 @@ const FileList: React.FC<FileListProps> = ({ data }) => {
   const offset = currentPage * ITEMS_PER_PAGE;
   const slicedData = data.slice(offset, offset + ITEMS_PER_PAGE);
 
-  const handleFileView = (IPFSHash: string) => {
-    const ipfsLink = `https://ipfs.io/ipfs/${IPFSHash}`;
-    window.open(ipfsLink, '_blank');
-  };
+  // const handleFileView = (IPFSHash: string) => {
+  //   const ipfsLink = `https://ipfs.io/ipfs/${IPFSHash}`;
+  //   window.open(ipfsLink, '_blank');
+  // };
 
   // const handleDownload = (url: string, name: string) => {
   //   axios

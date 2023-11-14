@@ -9,13 +9,10 @@ import {
 import Autocomplete from '@mui/material/Autocomplete';
 import "../style/policies.css";
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 import EncryptFileAndUpload from './components/lit';
-  
-
-// import Dropzone from './components/asset-select';
-
 
 const LS_KEY = 'login-with-metamask:auth';
 
@@ -34,45 +31,10 @@ interface Input {
 
 
 const SharingPolicyComponent: React.FC = () =>{
-  //state management for selected file
 
-  // const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
-
-  const notify = (notify_value: string) => toast(notify_value);
-
-  // const handleFilesSelected = (files: File[]) => {
-  //   setSelectedFiles(files);
-  // };
- 
-  // const [selectedIPFSFiles, setSelectedIPFSFiles] = useState<FileOption[]>([]);
-  // const [userUploadedFiles, setUserUploadedFiles] = useState<FileOption[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
-
-  // const loadUserUploadedFiles = async () => { 
-  //   const { accessToken } = auth;
-	// 	axios(`${backendUrl}/api/v1/users/uploadedFiles`, {
-	// 		headers: {
-	// 			Authorization: `Bearer ${accessToken}`,
-	// 		},
-	// 	})
-	// 		.then((response) => {
-	// 			const uploadedFiles = response.data
-  //       let selectOptions = uploadedFiles.rows.map((file: any) => {
-  //         return {id: file.id, name:file.metadata.name, IPFSHash: file.ipfs_pin_hash}
-  //       })
-  //       setUserUploadedFiles(selectOptions)
-	// 		})
-	// 		.catch(window.alert);
-  // };
-
-  // useEffect(() => {
-	// 	loadUserUploadedFiles()
-	// }, []);
   
   const [inputs, setInputs] = useState<Input[]>([{ group: '', permissions: '',  organizations: [], countries: []}]);
-
-  
 
   useEffect(() => {
     axios.get('https://restcountries.com/v3.1/all')
@@ -116,7 +78,6 @@ const SharingPolicyComponent: React.FC = () =>{
 
   const handleSubmit = async (event: React.FormEvent) => {
     
-
     event.preventDefault();
 
     const formData = new FormData();
@@ -134,45 +95,17 @@ const SharingPolicyComponent: React.FC = () =>{
             "Content-Type": "multipart/form-data" 
           },
         });
-        notify('Policy Saved Successfully and Smart Contract Deployed');
+        toast.success('Policy Saved Successfully and Smart Contract Deployed');
         return response.data;
       } catch(error) {
+        toast.error("Error while deploying smart contract")
         console.log(error)
       }  
   };
   
-//   const handleIPFSUpload = async (event: React.FormEvent) => {
-//     event.preventDefault();
-  
-//     const formData = new FormData();
-    
-//     // Append the file(s)
-//     selectedFiles.forEach((file, index) => {
-//       formData.append(`file${index}`, file);
-//     });
-
-
-//  try {
-//         const response = await axios({
-//           method: "post",
-//           url: `${backendUrl}/api/v1/users/asset-upload`,
-//           data: formData,
-//           headers: { 
-//             Authorization: `Bearer ${auth.accessToken}`,
-//             "Content-Type": "multipart/form-data" 
-//           },
-//         })
-//         if(response.data) {
-//           notify('Files uploaded to IPFS Successfully');
-//           return response.data;
-//         }        
-//       } catch(error) {
-//         console.log(error)
-//       } 
-//   };
-
   return (
     <div className='scrollable-page'>
+      <ToastContainer autoClose={3000}/>
       <h2>Custom Policies Definition</h2>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <div>

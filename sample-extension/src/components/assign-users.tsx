@@ -8,6 +8,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import FileSelect from "./select-wrapper";
 import {Select, MenuItem, FormControl, InputLabel, Box, SelectChangeEvent } from "@mui/material";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -40,7 +42,6 @@ interface SaveUserToContractMap {
 }
 
 interface FileOption {
-  id: string;
   name: string;
   IPFSHash: string;
 }
@@ -85,6 +86,7 @@ const ContractAssignmentComponent: React.FC = () => {
     const addressAlreadyExists = usersListToSaveInContract.some(obj => obj.eoaAddress === trimmedAddress);
     if (trimmedAddress !== '' && !addressAlreadyExists) {
       setUsersListDetailToSaveInContract([...usersListToSaveInContract, {eoaAddress, accessFrom: accessFrom!.toISOString(), accessTo: accessTo!.toISOString()}]);
+      
       setEoaAddress('');
       setAccessFrom(null);
       setAccessTo(null);
@@ -98,28 +100,25 @@ const ContractAssignmentComponent: React.FC = () => {
   const handleContractSelect = (event: SelectChangeEvent<string>) => {
 
     const selectedContract = event.target.value;
-    console.log(selectedContract, 'selected contract')
+    // Convert the array of objects to a JSON string
+    const jsonString = JSON.stringify(usersListToSaveInContract);
+
+    // Encode the JSON string as a URL parameter
+    const encodedParameter = encodeURIComponent(jsonString);
     axios
-    .get(`${backendUrl}/api/v1/policies/get-contract-details?childContractAddress=${selectedContract}`, {
+    .get(`${backendUrl}/api/v1/policies/get-contract-details?childContractAddress=${selectedContract}&&users=${encodedParameter}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-      },
+      }
     })
     .then((response) => {
-      console.log(response.data, 'response data of the selected contract')
       setSelectedContract(response.data);
     })
     .catch((error) => {
       console.error('Error fetching contract information:', error);
       window.alert('Error fetching contract information');
     });
-    // const selected = contractInformation.find((contract) => contract.childContractAddress === selectedContract);
-    // if (selected) {
-    //   setSelectedContract(selected);
-    // }
-    // else{
-    //   setSelectedContract(null);
-    // }
+   
   };
 
   const handleRemoveUser = (index: number) => {
@@ -138,7 +137,7 @@ const ContractAssignmentComponent: React.FC = () => {
 			.then((response) => {
 				const uploadedFiles = response.data
         let selectOptions = uploadedFiles.rows.map((file: any) => {
-          return {id: file.id, name:file.metadata.name, IPFSHash: file.ipfs_pin_hash}
+          return {name:file.metadata.name, IPFSHash: file.ipfs_pin_hash}
         })
         setUserUploadedFiles(selectOptions)
 			})
@@ -157,8 +156,7 @@ const ContractAssignmentComponent: React.FC = () => {
           Authorization: `Bearer ${accessToken}`,
         },
       })
-      .then((response) => {
-        console.log(response.data, 'response data check')
+      .then((response) => {   
         setContractInformation(response.data);
       })
       .catch((error) => {
@@ -181,8 +179,6 @@ const ContractAssignmentComponent: React.FC = () => {
       filesToAdd: selectedIPFSFiles
     }
 
-    console.log(user_contract_details, 'user_contract_details')
-
 formData.append('user_contract_details', JSON.stringify(user_contract_details));
     // Sending a POST request to the backend server using Axioss
       try {
@@ -195,17 +191,22 @@ formData.append('user_contract_details', JSON.stringify(user_contract_details));
           },
         });
         // notify('Policy Saved Successfully and Sma');
+        toast.success("Users added to the group successfully")
+
         return response.data;
       } catch(error) {
         console.log(error)
+        toast.error("Error While adding users to the group")
       }  
   };
 
   
 
   return (
-    <div style={{ marginBottom: '20px', padding: '20px', border: '1px solid #ccc', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+    <div className='scrollable-page'>
+      <ToastContainer autoClose={3000}/>
+    <div style={{ marginBottom: '20px', padding: '20px', border: '1px solid #ccc', display: 'flex', flexDirection: 'column' }}> 
+    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
           <input
                 type="text"
                 id="eoaAddress"
@@ -240,17 +241,21 @@ formData.append('user_contract_details', JSON.stringify(user_contract_details));
       </div>
       {(usersListToSaveInContract.length > 0) && (
         <div>
-          <h3>Selected Users:</h3>
-          <ul>
-            {usersListToSaveInContract.map((user, index) => (
-              <li key={index}>
-                {user.eoaAddress} AccessFrom: {user.accessFrom} - AccessTo: {user.accessTo} <button onClick={() => handleRemoveUser(index)}>Remove</button>
-              </li>
-            ))}
-          </ul>
+        <h3>Selected Users:</h3>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {usersListToSaveInContract.map((user, index) => (
+            <li key={index} style={{ marginBottom: '10px', borderBottom: '1px solid #ccc', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <strong>{user.eoaAddress}</strong><br />
+                <span>Access From: <strong>{user.accessFrom.split('T')[0]}</strong> - Access To: <strong>{user.accessTo.split('T')[0]}</strong></span>
+              </div>
+              <button onClick={() => handleRemoveUser(index)}>Remove</button>
+            </li>
+          ))}
+        </ul>
       </div>
-      )}
       
+      )}
       <div>
       <h2>Select Contract and Files To Share</h2>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>       
@@ -296,7 +301,8 @@ formData.append('user_contract_details', JSON.stringify(user_contract_details));
             <ContractVisualization selectedContract={selectedContract} />  
           )}
     </div>
-
+    
+    </div>
     </div>
   );
 };

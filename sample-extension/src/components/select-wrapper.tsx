@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Select, MenuItem, FormControl, InputLabel, Box, SelectChangeEvent } from "@mui/material";
 
 interface File {
-  id: string;
   name: string;
   IPFSHash: string;
 }
@@ -17,7 +16,6 @@ const FileSelect: React.FC<FileSelectProps> = ({ files, onSelect }) => {
 
   const handleFileSelect = (event: SelectChangeEvent<string[]>) => {
     const selectedFileIds = event.target.value;
-    console.log(selectedFileIds)
     const selectedFiles = files.filter((file) => selectedFileIds.includes(file.IPFSHash));
     setSelectedFiles(selectedFiles);
     onSelect(selectedFiles);
@@ -35,7 +33,7 @@ const FileSelect: React.FC<FileSelectProps> = ({ files, onSelect }) => {
             placeholder="Select Files"
           >
           {files.map((file) => (
-            <MenuItem key={file.id} value={file.IPFSHash}>
+            <MenuItem key={file.IPFSHash} value={file.IPFSHash}>
               {file.name}
             </MenuItem>
           ))}
