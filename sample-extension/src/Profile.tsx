@@ -92,7 +92,7 @@ const Profile: React.FC<Props> = ({ auth, onLoggedOut }) => {
       return;
     }
 
-    axios.put(`${backendUrl}/api/v1/users/${user._id}`, 
+    axios.post(`${backendUrl}/api/v1/users/${user._id}`, 
 	{ 
 		username,
 		organization: selectedOrganization,
@@ -111,7 +111,6 @@ const Profile: React.FC<Props> = ({ auth, onLoggedOut }) => {
         toast.success('Registration details updated successfully');
       })
       .catch((error) => {
-        window.alert(error);
         setState({ ...state, loading: false });
         toast.error('Error updating registration details');
       });

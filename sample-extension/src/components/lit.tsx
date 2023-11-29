@@ -67,18 +67,18 @@ function EncryptFileAndUpload() {
                     chain: 'ethereum',
                     file: selectedFile,
                     litNodeClient: litNodeClient,
-                    readme: "Use IPFS CID of this file to decrypt it"
+                    readme: "Registered user can decrypt this file"
                 });
 
                 let encryptedBlob = new Blob([encryptedZip], { type: 'text/plain' })
                 let encryptedFile = new File([encryptedBlob], `${selectedFile.name}`)
 
-                formData.append(`files`, encryptedFile);
+                formData.append(`files`, encryptedFile, selectedFile.name);
             }
 
             const response = await axios({
               method: "post",
-              url: `${backendUrl}/api/v1/users/asset-upload-test`,
+              url: `${backendUrl}/api/v1/users/asset-upload`,
               data: formData,
               headers: { 
                 Authorization: `Bearer ${auth.accessToken}`,
