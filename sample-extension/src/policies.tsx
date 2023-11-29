@@ -91,8 +91,7 @@ const SharingPolicyComponent: React.FC = () =>{
           url: `${backendUrl}/api/v1/policies/add`,
           data: formData,
           headers: { 
-            Authorization: `Bearer ${auth.accessToken}`,
-            "Content-Type": "multipart/form-data" 
+            Authorization: `Bearer ${auth.accessToken}`
           },
         });
         toast.success('Policy Saved Successfully and Smart Contract Deployed');
@@ -112,7 +111,7 @@ const SharingPolicyComponent: React.FC = () =>{
           <EncryptFileAndUpload />
         </div>
         <div>
-          <h3>Groups and Permissions:</h3>
+          <h3>Groups and Policies:</h3>
           <button type="button" onClick={handleAddInput}>Add</button>
         </div>
         {inputs.map((input, index) => (
@@ -126,7 +125,7 @@ const SharingPolicyComponent: React.FC = () =>{
                 onChange={(event) => handleInputChange(index, event.target.value, 'group')}
                 style={{ flex: 1, padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}
               />
-              <select
+              {/* <select
                 name="permissions"
                 value={input.permissions}
                 onChange={(event) => handleInputChange(index, event.target.value, 'permissions')}
@@ -135,7 +134,7 @@ const SharingPolicyComponent: React.FC = () =>{
                 <option value="">Select a permission</option>
                 <option value="read_access">Read Access</option>
                 <option value="unlimited_access">Full Access</option>
-              </select>
+              </select> */}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
             <Grid container spacing={3}>
